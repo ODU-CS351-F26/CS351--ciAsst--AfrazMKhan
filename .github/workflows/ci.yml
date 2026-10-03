@@ -5,21 +5,11 @@ on:
     branches: [ main ]
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: true
+  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - uses: actions/checkout@v4
@@ -36,14 +26,9 @@ jobs:
       - name: Build test and generate reports
         run: ./gradlew clean reports
 
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload project reports
-        uses: actions/upload-pages-artifact@v4
+      - name: Publish reports to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: build/reports
-
-      - name: Deploy project reports
-        id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/reports
+          publish_branch: gh-pages
